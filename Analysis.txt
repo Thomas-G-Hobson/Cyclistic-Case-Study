@@ -1,0 +1,75 @@
+/*
+Most preferred bike overall
+*/
+SELECT rideable_type, count(*) AS number
+FROM `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+GROUP BY rideable_type
+ORDER BY rideable_type;
+
+/*
+Most preferred bike per user
+*/
+
+SELECT rideable_type, member_casual, count(*) AS tally
+FROM `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+GROUP BY rideable_type, member_casual
+ORDER BY member_casual, tally DESC;
+
+/*
+Total trips per day 
+*/
+
+SELECT rideable_type, member_casual, day, count(day) AS amount
+FROM `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+GROUP BY day, rideable_type, member_casual
+ORDER BY amount DESC;
+
+/*
+Total trips per month
+*/
+
+SELECT rideable_type, member_casual, month, count(*) AS occurance
+FROM `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+GROUP BY month, rideable_type, member_casual
+ORDER BY occurance DESC;
+
+/*
+Longest trip 
+Shortest trip 
+Average trip length
+Total trip length 
+*/
+
+SELECT rideable_type, member_casual, (MAX(ride_length)) AS max_trip, MIN(ride_length) AS min_trip, AVG(ride_length) AS avg_trip_length, SUM(ride_length) AS total_length_of_trips
+FROM `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+GROUP BY member_casual, rideable_type;
+
+/*
+Amount of trips per hour
+*/
+
+SELECT member_casual, EXTRACT(HOUR FROM started_at) AS time_of_day, count(*) as num_of_rides
+   FROM `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+   GROUP BY member_casual, time_of_day
+   ORDER BY time_of_day;
+
+/*
+Which is the most visited station and the least visited station
+*/
+
+SELECT start_station_name, COUNT(*) AS total_trips, 
+    AVG(start_lat) AS avg_latitude, 
+    AVG(start_lng) AS avg_longitude
+FROM `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+GROUP BY start_station_name
+ORDER BY total_trips DESC
+LIMIT 1; 
+
+SELECT start_station_name, COUNT(*) AS total_trips, 
+    AVG(start_lat) AS avg_latitude, 
+    AVG(start_lng) AS avg_longitude
+FROM `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+GROUP BY start_station_name
+ORDER BY total_trips ASC
+LIMIT 1; 
+

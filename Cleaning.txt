@@ -1,0 +1,171 @@
+/* 
+Remove trips that are longer than 1 day
+Remove trips shorter than 1 minute
+*/
+
+DELETE
+FROM
+  `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+WHERE 
+TIMESTAMP_DIFF(ended_at,started_at,MINUTE) >= 1440
+OR TIMESTAMP_DIFF(ended_at, started_at,MINUTE) <= 1;
+
+/*
+Remove any NULL values and there corresponding rows from our data set.
+*/
+
+DELETE
+FROM `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+WHERE
+  start_station_name IS NULL
+  OR start_station_id IS NULL
+  OR end_station_name IS NULL
+  OR end_station_id IS NULL;
+
+/*
+Remove extra spaces in start station name/id and end station name/id
+*/
+
+UPDATE
+  `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET
+  start_station_name = TRIM(start_station_name),
+  start_station_id = TRIM(start_station_id),
+  end_station_name = TRIM(end_station_name),
+  end_station_id = TRIM(end_station_id)
+WHERE
+  start_station_name LIKE '% %'
+  OR start_station_id LIKE '% %'
+  OR end_station_name LIKE '% %'
+  OR end_station_id LIKE '% %';
+
+/*
+Remove any repair / test / maintenance stations
+*/
+
+DELETE
+FROM `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+WHERE
+  start_station_name = 'DIVVY CASSETTE REPAIR MOBILE STATION'
+  OR end_station_name = 'DIVVY CASSETTE REPAIR MOBILE STATION'
+  OR start_station_name = 'Hubbard Bike-checking (LBS-WH-TEST)'
+  OR end_station_name = 'Hubbard Bike-checking (LBS-WH-TEST)'
+  OR start_station_name = 'WEST CHI-WATSON'
+  OR end_station_name = 'WEST CHI-WATSON';
+
+/*
+Remove Substrings.
+*/
+
+UPDATE 
+  `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+  start_station_name = REPLACE(start_station_name, '(Temp)','')
+WHERE   
+  TRUE;
+
+UPDATE 
+  `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+  end_station_name = REPLACE(end_station_name, '(Temp)','')
+WHERE   
+  TRUE;
+
+UPDATE 
+  `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+  start_station_name = REPLACE(start_station_name, '-Charging','')
+WHERE   
+  TRUE;
+
+UPDATE 
+  `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+  end_station_name = REPLACE(end_station_name, '-Charging','')
+WHERE   
+  TRUE;
+
+UPDATE 
+  `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+  start_station_name = REPLACE(start_station_name, '*','')
+WHERE   
+  TRUE;
+
+UPDATE 
+  `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+  end_station_name = REPLACE(end_station_name, '*','')
+WHERE   
+  TRUE;
+
+UPDATE 
+  `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+  start_station_name = REPLACE(start_station_name, 'amp;','')
+WHERE   
+  TRUE;
+
+UPDATE 
+  `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+  end_station_name = REPLACE(end_station_name, 'amp;','')
+WHERE   
+  TRUE;
+
+/*
+Add columns to the table to specify which day, month and year the trips took place.
+Add column to indicate how long the trip was.
+*/
+
+ALTER TABLE
+`cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+ADD COLUMN day STRING,
+ADD COLUMN month STRING,
+ADD COLUMN year INT,
+ADD COLUMN ride_length INT;
+
+UPDATE `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+   ride_length = TIMESTAMP_DIFF(ended_at, started_at, MINUTE)
+  WHERE
+  TRUE;
+
+UPDATE `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+   day = CASE 
+   WHEN EXTRACT(DAY FROM started_at) = 2 THEN 'Mon'
+   WHEN EXTRACT(DAY FROM started_at) = 3 THEN 'Tue'
+   WHEN EXTRACT(DAY FROM started_at) = 4 THEN 'Wed'
+   WHEN EXTRACT(DAY FROM started_at) = 5 THEN 'Thu'
+   WHEN EXTRACT(DAY FROM started_at) = 6 THEN 'Fri'
+   WHEN EXTRACT(DAY FROM started_at) = 7 THEN 'Sat'
+   ELSE 'Sun'
+   END
+WHERE
+  TRUE;
+ 
+UPDATE `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+   month = CASE
+   WHEN EXTRACT(MONTH FROM started_at) = 1 THEN 'Jan'
+   WHEN EXTRACT(MONTH FROM started_at) = 2 THEN 'Feb'
+   WHEN EXTRACT(MONTH FROM started_at) = 3 THEN 'Mar'
+   WHEN EXTRACT(MONTH FROM started_at) = 4 THEN 'Apr'
+   WHEN EXTRACT(MONTH FROM started_at) = 5 THEN 'May'
+   WHEN EXTRACT(MONTH FROM started_at) = 6 THEN 'Jun'
+   WHEN EXTRACT(MONTH FROM started_at) = 7 THEN 'Jul'
+   WHEN EXTRACT(MONTH FROM started_at) = 8 THEN 'Aug'
+   WHEN EXTRACT(MONTH FROM started_at) = 9 THEN 'Sep'
+   WHEN EXTRACT(MONTH FROM started_at) = 10 THEN 'Oct'
+   WHEN EXTRACT(MONTH FROM started_at) = 11 THEN 'Nov'
+   ELSE 'Dec'
+   END 
+WHERE
+  TRUE;
+  
+ UPDATE `cyclistic-case-study-381407.cyclistic_tripdata.combinedtable`
+SET 
+   year = EXTRACT(YEAR FROM started_at)
+  WHERE
+  TRUE;
